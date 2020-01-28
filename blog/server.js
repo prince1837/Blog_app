@@ -1,37 +1,36 @@
-const mysql=require("mysql")
-const express=require("express")
-const jwt=require("jsonwebtoken")
-const dotenv=require('dotenv').config()
-const S_key=process.env.Sec_key
+const express = require("express");
+const body = require("body-parser");
+const mysql = require("mysql");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv").config();
+const app = express();
+app.use(body.json())
+const s_key = process.env.secret_key;
 
-var app=express()
-app.use(express.json())
-
-const knex = require('knex')({
-	client: 'mysql',
-	connection: {
-	  host : process.env.DB_HOST,
-	  user : process.env.DB_USER,
-	  password : process.env.DB_PASSWORD,
-	  database : process.env.DB_DATABASE
-	}
-  });
+const knex = require("knex")({
+    client: process.env.client,
+    connection: {
+        user: process.env.user,
+        password: process.env.password,
+        host: process.env.host,
+        database: process.env.database,
+    }
+})
 
 require("./routes/create_table")(knex)
 
-const login=express.Router()
-app.use("/",login)
-require("./routes/login")(login,knex,jwt,S_key)
+app.use('/', register = express.Router())
+require('./routes/resiter')(register, knex,s_key)
 
-const sign_up=express.Router()
-app.use("/",sign_up)
-require("./routes/sign_up")(sign_up,knex,jwt,S_key)
+app.use('/login', login = express.Router())
+require('./routes/login')(login, knex, jwt,s_key)
 
-const post=express.Router()
-app.use("/",post)
-require("./routes/create_post")(post,knex,jwt,S_key)
+app.use('/', post = express.Router())
+require('./routes/post')(post, knex, jwt,s_key)
 
+app.use('/', like_dislike = express.Router())
+require('./routes/like_dislike')(like_dislike, knex, jwt,s_key)
 
-  app.listen(process.env.DB_PORT,()=>{
-	console.log("your server is started...... ");
+app.listen(process.env.port, () => {
+    console.log(`yuor port is working ${process.env.port}`);
 })
